@@ -31,6 +31,10 @@ public class PatientController {
         model.addAttribute("keyword", keyword);
         return "patient";
     }
+    @GetMapping("/")
+    public String home(){
+        return "redirect:/index";
+    }
 
     @GetMapping("/delete")
     public String delete(Long id,
