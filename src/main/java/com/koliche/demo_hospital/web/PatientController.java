@@ -20,7 +20,7 @@ public class PatientController {
         this.patientRepository = patientRepository;
     }
 
-    @GetMapping("/index")
+    @GetMapping("/user/index")
     public String index(Model model, @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "4") int size,
                         @RequestParam(defaultValue = "") String keyword){
@@ -33,32 +33,32 @@ public class PatientController {
     }
     @GetMapping("/")
     public String home(){
-        return "redirect:/index";
+        return "redirect:/user/index";
     }
 
-    @GetMapping("/delete")
+    @GetMapping("/admin/delete")
     public String delete(Long id,
                          @RequestParam(defaultValue = "") String keyword,
                          @RequestParam(defaultValue = "0") int page){
         patientRepository.deleteById(id);
-        return "redirect:/index?page=%d&keyword=%s".formatted(page, keyword);
+        return "redirect:/user/index?page=%d&keyword=%s".formatted(page, keyword);
     }
 
-    @GetMapping("/formPatient")
+    @GetMapping("/admin/formPatient")
     public String formPatient(Model model){
         model.addAttribute("patient",new Patient());
         return "formPatient";
     }
 
-    @PostMapping("/savePatient")
+    @PostMapping("/admin/savePatient")
     public String savePatient(@Valid Patient patient, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {return "formPatient";}
 
         patientRepository.save(patient);
-        return "redirect:/index?keyword=%s".formatted(patient.getName());
+        return "redirect:/user/index?keyword=%s".formatted(patient.getName());
     }
 
-    @GetMapping("/editPatient")
+    @GetMapping("/admin/editPatient")
     public String editPatient(Model model, @RequestParam Long id){
         Patient patient = patientRepository.findById(id).get();
         model.addAttribute("patient", patient);

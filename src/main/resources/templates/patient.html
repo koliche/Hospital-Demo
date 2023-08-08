@@ -15,7 +15,7 @@ layout:decorate="template.html">
                 List Patient
             </div>
             <div class="card-body">
-                <form method="get" th:action="@{/index}">
+                <form method="get" th:action="@{/user/index}">
                     <div>
                         <label>Keyword</label>
                     </div>
@@ -33,20 +33,20 @@ layout:decorate="template.html">
                         <td th:text="${p.berthDay}">
                         <td th:text="${p.sick}">
                         <td th:text="${p.score}">
-                        <td>
+                        <td th:if="${#authorization.expression('hasRole(''Admin'')')}">
                             <a onclick="javascript:return confirm('Are you sure !?')"
-                               th:href="@{delete(id=${p.id}, keyword=${keyword}, page=${currentPage})}" class="btn btn-danger">Delete</a>
+                               th:href="@{/admin/delete(id=${p.id}, keyword=${keyword}, page=${currentPage})}" class="btn btn-danger">Delete</a>
                         </td>
-                        <td>
+                        <td th:if="${#authorization.expression('hasRole(''Admin'')')}">
                             <a class="btn btn-success"
-                               th:href="@{/editPatient(id=${p.id})}">Edit</a>
+                               th:href="@{/admin/editPatient(id=${p.id})}">Edit</a>
                         </td>
                     </tr>
                     </thead>
                 </table>
                 <ul class="nav nav-pills">
                     <li th:each="page, status:${pages}">
-                        <a th:href="@{/index(page=${status.index}, keyword=${keyword})}"
+                        <a th:href="@{/user/index(page=${status.index}, keyword=${keyword})}"
                            th:class="${currentPage == status.index?'btn btn-success ms-1':'btn btn-outline-success ms-1'}"
                            th:text="${status.index+1}"></a>
                     </li>
