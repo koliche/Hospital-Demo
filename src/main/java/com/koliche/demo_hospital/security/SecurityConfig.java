@@ -1,6 +1,7 @@
 package com.koliche.demo_hospital.security;
 
 
+import com.koliche.demo_hospital.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +10,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.sql.DataSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -18,6 +22,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
 
     @Bean
@@ -25,23 +31,33 @@ public class SecurityConfig {
         httpSecurity
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/user/**").hasRole("User")
-                                .requestMatchers("/webjar/**").permitAll()
+                                .requestMatchers("/").hasRole("User")
                                 .requestMatchers("/admin/**").hasRole("Admin")
+                                .requestMatchers("/user/**").hasRole("User")
                                 .anyRequest().authenticated()
                 )
-                .formLogin(log ->log.loginPage("/login"));
-                httpSecurity.exceptionHandling(hand -> hand.accessDeniedPage("/notAuthorized"));
+                .formLogin(login ->
+                        login.loginPage("/login").defaultSuccessUrl("/").permitAll()
+                )
+                .exceptionHandling(handling ->
+                        handling.accessDeniedPage("/notAuthorized")
+                );
+                httpSecurity.userDetailsService(userDetailsService);
         return httpSecurity.build();
     }
 
 
-    @Bean
+
+    //@Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager(){
         return new InMemoryUserDetailsManager(
                 User.withUsername("user1").password(passwordEncoder.encode("1234")).roles("User").build(),
                 User.withUsername("user2").password(passwordEncoder.encode("1234")).roles("User").build(),
                 User.withUsername("admin").password(passwordEncoder.encode("1234")).roles("User","Admin").build()
         );
+    }
+
+    public JdbcUserDetailsManager jdbcUserDetailsManager(DataSource dataSource){
+        return new JdbcUserDetailsManager(dataSource);
     }
 }
